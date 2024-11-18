@@ -61,7 +61,7 @@ execsql = PythonOperator(
     task_id = 'mau_summary',
     python_callable = execSQL,
     params = {
-        'schema' : 'keeyong',
+        'schema' : 'rlawngh621',
         'table': 'mau_summary',
         'sql' : """SELECT 
   TO_CHAR(A.ts, 'YYYY-MM') AS month,

@@ -18,15 +18,19 @@ def get_Redshift_connection(autocommit=True):
 
 @task
 def get_historical_prices(symbol):
-    ticket = yf.Ticker(symbol)
-    data = ticket.history()
-    records = []
+    try:
+        ticket = yf.Ticker(symbol)
+        data = ticket.history(period="1d", timeout=60)  # Timeout 60초 설정
+        records = []
 
-    for index, row in data.iterrows():
-        date = index.strftime('%Y-%m-%d %H:%M:%S')
-        records.append([date, row["Open"], row["High"], row["Low"], row["Close"], row["Volume"]])
+        for index, row in data.iterrows():
+            date = index.strftime('%Y-%m-%d %H:%M:%S')
+            records.append([date, row["Open"], row["High"], row["Low"], row["Close"], row["Volume"]])
+        return records
+    except Exception as e:
+        logging.error(f"Error fetching data for {symbol}: {e}")
+        raise
 
-    return records
 
 
 def _create_table(cur, schema, table, drop_first):

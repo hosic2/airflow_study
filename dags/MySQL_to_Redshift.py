@@ -12,6 +12,12 @@ import logging
 import psycopg2
 import json
 
+def get_Redshift_connection(autocommit=True):
+    hook = PostgresHook(postgres_conn_id='redshift_dev_db')
+    conn = hook.get_conn()
+    conn.autocommit = autocommit
+    return conn.cursor()
+
 
 dag = DAG(
     dag_id = 'MySQL_to_Redshift',
@@ -25,7 +31,7 @@ dag = DAG(
     }
 )
 
-schema = "keeyong"
+schema = "rlawngh621"
 table = "nps"
 s3_bucket = "grepp-data-engineering"
 s3_key = schema + "-" + table
