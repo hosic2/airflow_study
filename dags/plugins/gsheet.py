@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-from airflow.hooks.postgres_hook import PostgresHook
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.models import Variable
 from oauth2client.service_account import ServiceAccountCredentials
+
+from airflow.exceptions import AirflowException
+
+from airflow import AirflowException
 
 import base64
 import gspread
@@ -17,6 +21,21 @@ def write_variable_to_local_file(variable_name, local_file_path):
     f = open(local_file_path, "w")
     f.write(content)
     f.close()
+
+def get_Redshift_connection(autocommit=True):
+    hook = PostgresHook(postgres_conn_id='redshift_dev_db')
+    conn = hook.get_conn()
+    conn.autocommit = autocommit
+    return conn.cursor()
+
+def create_table(schema, table):
+    cur = get_Redshift_connection()
+
+    cur.execute(f"""DROP TABLE IF EXISTS {schema}.{table};CREATE TABLE {schema}.{table} (
+                col1 int,
+                col2 int,
+                col3 int,
+                col4 int)""")
 
 
 def get_gsheet_client():

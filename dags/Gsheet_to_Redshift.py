@@ -58,6 +58,12 @@ def download_tab_in_gsheet(**context):
         tab,
         data_dir+'{}.csv'.format(table)
     )
+
+def setting_redshift(**context):
+    schema = context['params']['schema'] 
+    table = context['params']['table']
+
+    gsheet.create_table(schema, table)
      
 
 def copy_to_s3(**context):
@@ -90,7 +96,7 @@ sheets = [
     {
         "url": "https://docs.google.com/spreadsheets/d/1hW-_16OqgctX-_lXBa0VSmQAs98uUnmfOqvDYYjuE50/",
         "tab": "SheetToRedshift",
-        "schema": "keeyong",
+        "schema": "rlawngh621",
         "table": "spreadsheet_copy_testing"
     }
 ]
@@ -103,6 +109,12 @@ for sheet in sheets:
         dag = dag)
 
     s3_key = sheet["schema"] + "_" + sheet["table"]
+
+    setting_redshift_task = PythonOperator(
+        task_id = 'setting_readshift_{}_in_gsheet'.format(sheet["table"]),
+        python_callable = setting_redshift,
+        params = sheet,
+        dag = dag)
 
     copy_to_s3_task = PythonOperator(
         task_id = 'copy_{}_to_s3'.format(sheet["table"]),
@@ -126,4 +138,4 @@ for sheet in sheets:
         dag = dag
     )
 
-    download_tab_in_gsheet_task >> copy_to_s3_task >> run_copy_sql
+    download_tab_in_gsheet_task >> setting_redshift_task >> copy_to_s3_task >> run_copy_sql

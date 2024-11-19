@@ -4,7 +4,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from datetime import datetime, timedelta
 
 default_args = {
-    'start_date': datetime(2023, 6, 15)
+    'start_date': datetime(2024, 11, 15)
 }
 
 with DAG("Learn_TriggerRule", default_args=default_args, schedule=timedelta(1)) as dag:
